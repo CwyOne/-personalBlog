@@ -1,0 +1,307 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f2f5;
+  --bg-card: #ffffff;
+  --bg-code: #f4f4f4;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #eeeeee;
+  --link-color: #409eff;
+  --shadow: 0 2px 12px rgba(0,0,0,0.04);
+  --shadow-hover: 0 8px 25px rgba(0,0,0,0.1);
+  --hero-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+}
+
+html.dark {
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #181825;
+  --bg-card: #252536;
+  --bg-code: #2d2d3d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --border-color: #3a3a4e;
+  --link-color: #6db3f8;
+  --shadow: 0 2px 12px rgba(0,0,0,0.2);
+  --shadow-hover: 0 8px 25px rgba(0,0,0,0.4);
+  --hero-bg: linear-gradient(135deg, #0d0d1a 0%, #111128 40%, #0a0a20 100%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { overflow-y: scroll; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Article content styles */
+.article-content {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--text-primary);
+  max-width: 750px;
+  margin: 0 auto;
+  word-break: break-word;
+  transition: color 0.3s;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  margin: 1.5em 0 0.5em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+  scroll-margin-top: 80px;
+}
+
+.article-content h1 { font-size: 2em; }
+.article-content h2 { font-size: 1.6em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.article-content h3 { font-size: 1.3em; }
+
+.article-content p {
+  margin: 1em 0;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+/* Code block wrapper */
+.article-content pre {
+  position: relative;
+  background: #1e1e2e;
+  border-radius: 8px;
+  padding: 16px;
+  padding-top: 40px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 1.2em 0;
+}
+
+.article-content pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: #2d2d3d;
+  border-radius: 8px 8px 0 0;
+}
+
+.article-content pre::after {
+  content: '● ● ●';
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  font-size: 10px;
+  color: #888;
+  letter-spacing: 4px;
+}
+
+.article-content code {
+  background: var(--bg-code);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #e06c75;
+}
+
+.article-content pre code {
+  background: none;
+  padding: 0;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  z-index: 1;
+  background: transparent;
+  border: 1px solid #555;
+  color: #bbb;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #409eff;
+  padding: 0.5em 1em;
+  margin: 1em 0;
+  color: var(--text-secondary);
+  background: var(--bg-code);
+}
+
+.article-content ul,
+.article-content ol {
+  padding-left: 2em;
+  margin: 1em 0;
+}
+
+.article-content li {
+  margin: 0.3em 0;
+}
+
+.article-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.article-content th {
+  background: var(--bg-code);
+  font-weight: 600;
+}
+
+.article-content a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Back to top button */
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: all 0.3s;
+  z-index: 99;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  color: var(--link-color);
+  border-color: var(--link-color);
+  transform: translateY(-2px);
+}
+
+/* TOC sidebar */
+.toc-sidebar {
+  position: fixed;
+  top: 100px;
+  right: 24px;
+  width: 220px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  z-index: 50;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.toc-sidebar h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toc-link {
+  display: block;
+  padding: 4px 0;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+}
+
+.toc-link:hover,
+.toc-link.active {
+  color: var(--link-color);
+}
+
+.toc-link.active {
+  border-left-color: var(--link-color);
+  font-weight: 500;
+}
+
+.toc-link.level-2 { padding-left: 16px; }
+.toc-link.level-3 { padding-left: 24px; }
+
+@media (max-width: 1200px) {
+  .toc-sidebar { display: none; }
+}

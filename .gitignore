@@ -1,0 +1,27 @@
+# === 敏感配置 ===
+backend/src/main/resources/application-local.yml
+backend/uploads/
+
+# === Java / Maven ===
+target/
+*.class
+*.jar
+*.war
+*.log
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+
+# === Node / Vite ===
+node_modules/
+dist/
+*.local
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Claude Code ===
+.claude/
