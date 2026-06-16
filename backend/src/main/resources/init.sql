@@ -86,14 +86,17 @@ CREATE TABLE `article_tag` (
 -- ============================================
 DROP TABLE IF EXISTS `blog_comment`;
 CREATE TABLE `blog_comment` (
-    `id`          BIGINT   NOT NULL AUTO_INCREMENT COMMENT '评论ID',
-    `article_id`  BIGINT   NOT NULL COMMENT '文章ID',
-    `user_id`     BIGINT   NOT NULL COMMENT '评论用户ID',
-    `content`     TEXT     NOT NULL COMMENT '评论内容',
-    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
+    `id`              BIGINT   NOT NULL AUTO_INCREMENT COMMENT '评论ID',
+    `article_id`      BIGINT   NOT NULL COMMENT '文章ID',
+    `user_id`         BIGINT   NOT NULL COMMENT '评论用户ID',
+    `parent_id`       BIGINT            DEFAULT NULL COMMENT '父评论ID，NULL表示顶层评论',
+    `reply_to_user_id` BIGINT           DEFAULT NULL COMMENT '被回复用户ID',
+    `content`         TEXT     NOT NULL COMMENT '评论内容',
+    `create_time`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
     PRIMARY KEY (`id`),
     KEY `idx_article_id` (`article_id`),
     KEY `idx_user_id` (`user_id`),
+    KEY `idx_parent_id` (`parent_id`),
     CONSTRAINT `fk_comment_article` FOREIGN KEY (`article_id`) REFERENCES `blog_article` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论表';

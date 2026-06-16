@@ -57,6 +57,7 @@ public class SecurityConfig {
             .antMatchers("/api/login").permitAll()
             .antMatchers("/api/register").permitAll()
             .antMatchers("/api/send-code").permitAll()
+            .antMatchers("/api/chat/**").permitAll()
             .antMatchers("/api/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
             .and()

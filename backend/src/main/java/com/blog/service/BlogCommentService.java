@@ -8,5 +8,5 @@ public interface BlogCommentService {
 
     List<CommentVo> getCommentsByArticleId(Long articleId);
 
-    void addComment(Long articleId, Long userId, String content);
+    void addComment(Long articleId, Long userId, String content, Long parentId, Long replyToUserId);
 }

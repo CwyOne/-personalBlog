@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar">
+  <header class="navbar" :class="{ scrolled: isScrolled }">
     <div class="navbar-inner">
       <router-link to="/" class="brand">
         <img :src="brandAvatar" class="brand-avatar" alt="avatar" @error="e => e.target.src = defaultAvatar" />
@@ -11,35 +11,26 @@
         <router-link to="/archive" class="nav-link">归档</router-link>
         <router-link to="/about" class="nav-link">关于</router-link>
 
-        <!-- Theme toggle -->
         <span class="theme-toggle" @click="toggleTheme" :title="isDark ? '切换到浅色模式' : '切换到深色模式'">
           <el-icon :size="18"><Moon v-if="isDark" /><Sunny v-else /></el-icon>
         </span>
 
-        <!-- Admin link (only for admin) -->
-        <router-link v-if="isAdmin" to="/admin/articles" class="nav-link">后台管理</router-link>
+        <router-link v-if="isAdmin" to="/admin/articles" class="nav-link">后台</router-link>
 
-        <!-- Guest: show login/register -->
         <template v-if="!isLoggedIn">
-          <router-link to="/login" class="nav-link login-btn">登录 / 注册</router-link>
+          <router-link to="/login" class="nav-link login-btn">登录</router-link>
         </template>
 
-        <!-- Logged in: show user info -->
         <template v-else>
           <el-dropdown trigger="click">
             <span class="user-dropdown">
               <img :src="currentUser.avatar || defaultAvatar" class="user-avatar" @error="e => e.target.src = defaultAvatar" />
-              <span class="user-name">{{ currentUser.nickname || currentUser.username }}</span>
               <el-icon><ArrowDown /></el-icon>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item disabled>
-                  {{ currentUser.nickname || currentUser.username }}
-                </el-dropdown-item>
-                <el-dropdown-item @click="$router.push('/user/profile')">
-                  个人中心
-                </el-dropdown-item>
+                <el-dropdown-item disabled>{{ currentUser.nickname || currentUser.username }}</el-dropdown-item>
+                <el-dropdown-item @click="$router.push('/user/profile')">个人中心</el-dropdown-item>
                 <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -51,7 +42,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowDown, Sunny, Moon } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -63,18 +54,26 @@ const router = useRouter()
 const { isDark, toggle: toggleTheme } = useTheme()
 
 const defaultAvatar = 'https://api.dicebear.com/7.x/notionists/svg?seed=blog&backgroundColor=ffdfbf'
+const isScrolled = ref(false)
 
 const brandName = computed(() => {
   const name = siteOwner.value.nickname || '子墨'
   return name + '的博客'
 })
 
-const brandAvatar = computed(() => {
-  return siteOwner.value.avatar || defaultAvatar
-})
+const brandAvatar = computed(() => siteOwner.value.avatar || defaultAvatar)
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 60
+}
 
 onMounted(() => {
   fetchSiteInfo()
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
 })
 
 function handleLogout() {
@@ -86,19 +85,30 @@ function handleLogout() {
 
 <style scoped>
 .navbar {
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  transition: background-color 0.3s, border-color 0.3s;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  background: transparent;
+}
+
+.navbar.scrolled {
+  background: rgba(245, 247, 250, 0.78);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 .navbar-inner {
-  max-width: 1200px;
+  max-width: 1120px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 24px;
-  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -108,95 +118,89 @@ function handleLogout() {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
 }
 
 .brand-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #eee;
-}
-
-.brand-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  transition: color 0.3s;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.nav-link {
-  font-size: 15px;
-  color: var(--text-secondary);
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: var(--text-primary);
-}
-
-.login-btn {
-  background: #409eff;
-  color: #fff;
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.login-btn:hover {
-  background: #337ecc;
-  color: #fff;
-}
-
-.theme-toggle {
-  cursor: pointer;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s;
-}
-
-.theme-toggle:hover {
-  color: var(--link-color);
-  background: var(--bg-code);
-}
-
-/* User dropdown */
-.user-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.user-dropdown:hover {
-  background: #f5f5f5;
-}
-
-.user-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.user-name {
+.brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-800);
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-link {
   font-size: 14px;
-  color: #333;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--gray-500);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 450;
+}
+
+.nav-link:hover,
+.router-link-exact-active {
+  color: var(--gray-800);
+}
+
+.login-btn {
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: var(--indigo);
+  color: #fff !important;
+  transition: background 0.2s;
+}
+
+.login-btn:hover {
+  background: var(--indigo-soft);
+}
+
+.theme-toggle {
+  cursor: pointer;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: color 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--indigo);
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+:root[data-theme="dark"] .navbar.scrolled {
+  background: rgba(24, 26, 32, 0.82);
+}
+
+@media (max-width: 640px) {
+  .navbar { padding: 0 16px; }
+  .nav-links { gap: 16px; }
 }
 </style>

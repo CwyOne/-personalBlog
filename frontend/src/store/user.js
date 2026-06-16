@@ -1,29 +1,29 @@
 import { ref, computed } from 'vue'
 
 function getStoredUser() {
-  try { return JSON.parse(localStorage.getItem('user') || '{}') }
+  try { return JSON.parse(sessionStorage.getItem('user') || '{}') }
   catch { return {} }
 }
 
 const currentUser = ref(getStoredUser())
-const isLoggedIn = ref(!!localStorage.getItem('token'))
+const isLoggedIn = ref(!!sessionStorage.getItem('token'))
 
 export function setUser(user) {
   currentUser.value = user
   isLoggedIn.value = true
-  localStorage.setItem('user', JSON.stringify(user))
+  sessionStorage.setItem('user', JSON.stringify(user))
 }
 
 export function updateUser(patch) {
   currentUser.value = { ...currentUser.value, ...patch }
-  localStorage.setItem('user', JSON.stringify(currentUser.value))
+  sessionStorage.setItem('user', JSON.stringify(currentUser.value))
 }
 
 export function clearUser() {
   currentUser.value = {}
   isLoggedIn.value = false
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
+  sessionStorage.removeItem('token')
+  sessionStorage.removeItem('user')
 }
 
 export const isAdmin = computed(() => currentUser.value.role === 'admin')

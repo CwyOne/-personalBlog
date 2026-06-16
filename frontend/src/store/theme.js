@@ -5,6 +5,7 @@ const isDark = ref(stored === 'dark')
 
 function apply() {
   document.documentElement.classList.toggle('dark', isDark.value)
+  document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
   localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
 }
 

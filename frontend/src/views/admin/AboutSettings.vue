@@ -10,13 +10,13 @@
           <img :src="previewUrl || form.avatar || defaultAvatar" class="profile-avatar" @error="e => e.target.src = defaultAvatar" />
           <div class="avatar-actions">
             <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="handleFileSelect" />
-            <el-button size="small" @click="$refs.fileInput.click()">更换头像</el-button>
+            <el-button size="small" class="upload-btn" @click="$refs.fileInput.click()">更换头像</el-button>
             <span class="avatar-hint">建议尺寸 200x200，支持 JPG/PNG/GIF/WebP</span>
           </div>
         </div>
         <el-form :model="form" label-width="80px" style="max-width:500px;margin-top:16px;">
           <el-form-item label="昵称">
-            <el-input v-model="form.nickname" placeholder="站长昵称（会同步到导航栏等位置）" />
+            <el-input v-model="form.nickname" placeholder="站长昵称（会同步到导航栏、浏览器标题等位置）" />
           </el-form-item>
         </el-form>
       </div>
@@ -92,12 +92,12 @@
         <div class="appearance-row">
           <div class="appearance-item">
             <label class="appearance-label">网站图标 (Favicon)</label>
-            <div class="appearance-preview">
-              <img :src="faviconPreview || form.favicon || defaultFavicon" class="favicon-preview" @error="e => e.target.src = defaultFavicon" />
+            <div class="appearance-preview favicon-box">
+              <img :src="faviconPreview || form.favicon || defaultFavicon" class="favicon-img" @error="e => e.target.src = defaultFavicon" />
             </div>
             <div class="appearance-actions">
-              <input ref="faviconInput" type="file" accept="image/*" style="display:none" @change="handleFaviconSelect" />
-              <el-button size="small" @click="$refs.faviconInput.click()">上传图标</el-button>
+              <input ref="faviconInput" type="file" accept="image/*,.ico,.svg" style="display:none" @change="handleFaviconSelect" />
+              <el-button size="small" class="upload-btn" @click="$refs.faviconInput.click()">上传图标</el-button>
               <span class="avatar-hint">建议 32x32 或 64x64，支持 ICO/PNG/SVG</span>
             </div>
           </div>
@@ -108,9 +108,9 @@
               <span v-if="!loginBgPreview && !form.loginBg" class="preview-placeholder">未设置</span>
             </div>
             <div class="appearance-actions">
-              <input ref="loginBgInput" type="file" accept="image/*" style="display:none" @change="handleLoginBgSelect" />
-              <el-button size="small" @click="$refs.loginBgInput.click()">上传背景图</el-button>
-              <span class="avatar-hint">建议 1920x1080，支持 JPG/PNG/WebP</span>
+              <input ref="loginBgInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" @change="handleLoginBgSelect" />
+              <el-button size="small" class="upload-btn" @click="$refs.loginBgInput.click()">上传背景图</el-button>
+              <span class="avatar-hint">建议 1920x1080，支持 JPG/PNG/<b>GIF</b>/WebP</span>
             </div>
           </div>
         </div>
@@ -132,6 +132,7 @@ import { ElMessage } from 'element-plus'
 import { getAdminAbout, updateAdminAbout, adminUploadAvatar, adminUploadFavicon, adminUploadLoginBg } from '@/utils/api'
 import { updateUser, currentUser } from '@/store/user'
 import { refreshSiteInfo, updateSiteInfo } from '@/store/site'
+import { setSiteName } from '@/utils/seo'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -149,7 +150,11 @@ const loginBgInput = ref(null)
 const loginBgPreviewStyle = computed(() => {
   const url = loginBgPreview.value || form.loginBg
   if (url) {
-    return { backgroundImage: `url(${url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    return {
+      backgroundImage: `url(${url})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }
   }
   return {}
 })
@@ -214,8 +219,8 @@ function handleFileSelect(e) {
 function handleFaviconSelect(e) {
   const file = e.target.files[0]
   if (!file) return
-  const isImage = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon', 'image/svg+xml'].includes(file.type)
-  if (!isImage) {
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon', 'image/svg+xml']
+  if (!validTypes.includes(file.type)) {
     ElMessage.warning('仅支持图片或图标格式')
     faviconInput.value.value = ''
     return
@@ -252,6 +257,7 @@ function handleLoginBgSelect(e) {
 async function handleSave() {
   saving.value = true
   try {
+    // Upload pending files
     if (pendingFile.value) {
       const res = await adminUploadAvatar(pendingFile.value)
       form.avatar = res.data.url
@@ -270,6 +276,8 @@ async function handleSave() {
       pendingLoginBg.value = null
       if (loginBgPreview.value) { URL.revokeObjectURL(loginBgPreview.value); loginBgPreview.value = '' }
     }
+
+    // Save to backend
     await updateAdminAbout({
       nickname: form.nickname,
       avatar: form.avatar,
@@ -281,11 +289,24 @@ async function handleSave() {
       favicon: form.favicon,
       loginBg: form.loginBg
     })
+
     ElMessage.success('保存成功')
-    // Sync currentUser if admin is editing themselves
+
+    // Sync currentUser
     updateUser({ nickname: form.nickname, avatar: form.avatar })
-    // Immediately update site store so NavBar/footer react at once
-    updateSiteInfo({ nickname: form.nickname, avatar: form.avatar, favicon: form.favicon, loginBg: form.loginBg })
+
+    // Sync site store so NavBar, footer, login page react immediately
+    updateSiteInfo({
+      nickname: form.nickname,
+      avatar: form.avatar,
+      favicon: form.favicon,
+      loginBg: form.loginBg
+    })
+
+    // Update browser tab title via SEO utility
+    setSiteName(form.nickname)
+    document.title = `${form.nickname}的博客`
+
     // Also refresh from server to get complete data
     await refreshSiteInfo()
   } finally {
@@ -318,29 +339,88 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.about-settings { max-width: 800px; }
-.settings-card { border-radius: 12px; }
-.section { margin-bottom: 8px; }
-.section-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; padding-left: 10px; border-left: 3px solid #409eff; }
+.about-settings { max-width: 1000px; }
+.settings-card { border-radius: 12px; background: var(--bg-card, #fff); }
 
+.section { margin-bottom: 8px; }
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  padding-left: 10px;
+  border-left: 3px solid var(--el-color-primary, #409eff);
+}
+
+/* Avatar */
 .avatar-row { display: flex; align-items: center; gap: 20px; }
-.profile-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #eee; }
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #eee;
+  transition: border-color 0.2s;
+}
+.profile-avatar:hover { border-color: var(--el-color-primary, #409eff); }
 .avatar-actions { display: flex; flex-direction: column; gap: 6px; }
 .avatar-hint { font-size: 12px; color: #999; }
 
-.tech-editor { background: #f9f9f9; border-radius: 8px; padding: 16px; }
+/* Upload button hover */
+.upload-btn {
+  transition: all 0.2s;
+}
+.upload-btn:hover {
+  color: var(--el-color-primary, #409eff) !important;
+  border-color: var(--el-color-primary, #409eff) !important;
+  background: #f0f5ff !important;
+}
+
+/* Tech stack */
+.tech-editor { background: var(--gray-50, #f9f9f9); border-radius: 8px; padding: 16px; transition: background-color 0.3s; }
 .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 32px; }
 .tech-tag { cursor: default; }
 .tech-add { display: flex; gap: 8px; }
 
-.form-actions { display: flex; gap: 12px; padding-top: 8px; }
-
-.appearance-row { display: flex; gap: 40px; flex-wrap: wrap; }
+/* Appearance */
+.appearance-row { display: flex; gap: 48px; flex-wrap: wrap; }
 .appearance-item { display: flex; flex-direction: column; gap: 12px; }
 .appearance-label { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
-.appearance-preview { width: 64px; height: 64px; border-radius: 8px; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; }
-.favicon-preview { width: 100%; height: 100%; object-fit: contain; }
-.login-bg-preview { width: 200px; height: 120px; }
+
+.appearance-preview {
+  border-radius: 10px;
+  border: 2px dashed #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+.appearance-preview:hover {
+  border-color: var(--el-color-primary, #409eff);
+}
+
+.favicon-box {
+  width: 64px;
+  height: 64px;
+}
+.favicon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.login-bg-preview {
+  width: 220px;
+  height: 130px;
+  background-color: #f0f0f0;
+}
+
 .preview-placeholder { font-size: 12px; color: #ccc; }
+
 .appearance-actions { display: flex; flex-direction: column; gap: 6px; }
+
+/* Actions */
+.form-actions { display: flex; gap: 12px; padding-top: 8px; }
 </style>
