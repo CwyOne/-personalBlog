@@ -1,6 +1,9 @@
 # === 敏感配置 ===
 backend/src/main/resources/application-local.yml
 backend/uploads/
+.env
+.env.local
+.env.*.local
 
 # === Java / Maven ===
 target/

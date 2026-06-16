@@ -6,7 +6,7 @@ services:
     container_name: blog-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
       MYSQL_DATABASE: personal_blog
       TZ: Asia/Shanghai
     ports:
