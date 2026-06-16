@@ -38,7 +38,11 @@ public class CommentController {
         if (content == null || content.trim().isEmpty()) {
             return R.fail(400, "评论内容不能为空");
         }
-        blogCommentService.addComment(id, userId, content.trim());
+        Long parentId = body.get("parentId") != null && !body.get("parentId").isEmpty()
+                ? Long.valueOf(body.get("parentId")) : null;
+        Long replyToUserId = body.get("replyToUserId") != null && !body.get("replyToUserId").isEmpty()
+                ? Long.valueOf(body.get("replyToUserId")) : null;
+        blogCommentService.addComment(id, userId, content.trim(), parentId, replyToUserId);
         return R.ok();
     }
 

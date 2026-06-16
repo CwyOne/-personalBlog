@@ -39,6 +39,9 @@ spring:
         max-active: 8
         max-idle: 8
         min-idle: 0
+  data:
+    mongodb:
+      uri: mongodb://localhost:27018/personal_blog
   cache:
     type: redis
     redis:

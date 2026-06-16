@@ -20,12 +20,16 @@ export function getTags() {
   return request.get('/api/tags')
 }
 
+export function createTag(name) {
+  return request.post('/api/admin/tags', { name })
+}
+
 export function getComments(articleId) {
   return request.get(`/api/articles/${articleId}/comments`)
 }
 
-export function addComment(articleId, content) {
-  return request.post(`/api/articles/${articleId}/comments`, { content })
+export function addComment(articleId, content, parentId, replyToUserId) {
+  return request.post(`/api/articles/${articleId}/comments`, { content, parentId, replyToUserId })
 }
 
 export function getAdminArticles(params) {
@@ -115,6 +119,12 @@ export function deleteUser(id) {
 }
 
 // Admin - about page management
+export function uploadDocx(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post('/api/admin/articles/upload-docx', formData)
+}
+
 export function getAdminAbout() {
   return request.get('/api/admin/about')
 }

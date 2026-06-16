@@ -16,6 +16,10 @@ public class BlogComment {
 
     private Long userId;
 
+    private Long parentId;
+
+    private Long replyToUserId;
+
     private String content;
 
     @TableField(fill = FieldFill.INSERT)

@@ -56,7 +56,7 @@ public class AdminController {
                         .orderByDesc(BlogComment::getCreateTime)
         );
 
-        List<CommentVo> voList = ((BlogCommentServiceImpl) blogCommentService).toVoList(commentPage.getRecords());
+        List<CommentVo> voList = ((BlogCommentServiceImpl) blogCommentService).toFlatVoList(commentPage.getRecords());
 
         Map<String, Object> data = new java.util.HashMap<>();
         data.put("records", voList);

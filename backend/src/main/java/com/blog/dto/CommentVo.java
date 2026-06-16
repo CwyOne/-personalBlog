@@ -3,6 +3,7 @@ package com.blog.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class CommentVo {
@@ -21,6 +22,12 @@ public class CommentVo {
 
     private String articleTitle;
 
+    private Long parentId;
+
+    private Long replyToUserId;
+
+    private String replyToNickname;
+
     private String content;
 
     private Long likeCount;
@@ -28,4 +35,6 @@ public class CommentVo {
     private Boolean liked;
 
     private LocalDateTime createTime;
+
+    private List<CommentVo> children;
 }

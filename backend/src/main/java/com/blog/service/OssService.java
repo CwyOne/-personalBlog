@@ -63,6 +63,23 @@ public class OssService {
         return putObject(objectName, file);
     }
 
+    /**
+     * 通过 InputStream 上传文件（用于 DOCX 内嵌图片等场景）
+     */
+    public String upload(InputStream inputStream, String filename, String dir) throws Exception {
+        String ext = "";
+        if (filename != null && filename.contains(".")) {
+            ext = filename.substring(filename.lastIndexOf("."));
+        }
+        String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        String objectName = dir + "/" + datePath + "/" + UUID.randomUUID().toString().replace("-", "") + ext;
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setObjectAcl(CannedAccessControlList.PublicRead);
+        ossClient.putObject(bucketName, objectName, inputStream, metadata);
+        return "https://" + bucketName + "." + endpoint + "/" + objectName;
+    }
+
     private String getExt(MultipartFile file) {
         String originalName = file.getOriginalFilename();
         if (originalName != null && originalName.contains(".")) {
